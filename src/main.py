@@ -52,6 +52,7 @@ async def main(discover_plugs=lambda: Discover.discover_single("192.168.0.11"),
         time_in_range_then = time_in_range_now
         now = datetime.now()
         time_in_range_now = True  # Elaborate check pending
+        emeter_realtime = "<not set>"
         if time_in_range_now:
             if not time_in_range_then:
                 power_currently_below_threshold = False
@@ -73,15 +74,7 @@ async def main(discover_plugs=lambda: Discover.discover_single("192.168.0.11"),
                 else:
                     power_currently_below_threshold = False
             except SmartDeviceException as e:
-                # Network failure is a chained OSError
-                # try:
-                #     if e.__cause__:
-                #         raise e.__cause__
-                # except OSError:
-                #     # Silently ignore all operating system issues for now.
-                #     pass
-                # except :
-                traceback.print_exc()
+                # For now we assume that network errors are transient.
                 pass
 
         print(now, plug.alias, emeter_realtime)

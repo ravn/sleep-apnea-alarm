@@ -1,4 +1,7 @@
 from datetime import datetime, timedelta
+import random
+
+from kasa import SmartDeviceException
 
 
 class EmeterRealtime:
@@ -31,5 +34,11 @@ class TestableDummyPlug:
 
     @staticmethod
     async def update():
-        return None
+        f = random
+        randint = f.randint(0, 1)
+        if randint == 0:
+            try:
+                raise OSError("Dummy network error")
+            except OSError as e:
+                raise SmartDeviceException("Dummy wrapped error") from e
 
