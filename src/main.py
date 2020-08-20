@@ -12,7 +12,9 @@ async def print_alias(dev):
     print(f"Discovered {dev.alias}")
 
 
-async def main(discover_plugs=lambda: Discover.discover_single("192.168.0.11")):
+async def main(discover_plugs=lambda: Discover.discover_single("192.168.0.11"),
+               alarm=lambda s: print("ALARM", s),
+               delay=True):
     # https://python-kasa.readthedocs.io/en/latest/smartplug.html
 
     # For some reason this doesn't work here, but works in the kasa cli program
@@ -45,7 +47,8 @@ async def main(discover_plugs=lambda: Discover.discover_single("192.168.0.11")):
     time_in_range_now = False
 
     while True:
-        time.sleep(1)
+        if delay:
+            time.sleep(1)
         time_in_range_then = time_in_range_now
         now = datetime.now()
         time_in_range_now = True  # Elaborate check pending
@@ -66,7 +69,7 @@ async def main(discover_plugs=lambda: Discover.discover_single("192.168.0.11")):
                         power_currently_below_threshold = True
                     seconds_below_threshold = (now - start_time_below_threshold).total_seconds()
                     if seconds_below_threshold > time_to_be_below_threshold:
-                        print(f"BEEN BELOW FOR {seconds_below_threshold}")
+                        alarm(seconds_below_threshold)
                 else:
                     power_currently_below_threshold = False
             except SmartDeviceException as e:
@@ -83,8 +86,6 @@ async def main(discover_plugs=lambda: Discover.discover_single("192.168.0.11")):
 
         print(now, plug.alias, emeter_realtime)
 
-    #   await p.turn_off()
-
 
 async def testableDummyPlug():
     return TestableDummyPlug()
@@ -93,4 +94,5 @@ async def testableDummyPlug():
 if __name__ == "__main__":
     logging.basicConfig(format='%(levelname)s:%(message)s    File "%(pathname)s", line %(lineno)s', level=logging.DEBUG)
     # execute only if run as a script
-    asyncio.run(main(lambda: testableDummyPlug()))
+    #    asyncio.run(main(discover_plugs=lambda: testableDummyPlug(), alarm=lambda s: print(s)))
+    asyncio.run(main(discover_plugs=lambda: testableDummyPlug(), delay=True))
