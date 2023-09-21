@@ -12,7 +12,7 @@ async def print_alias(dev):
     print(f"Discovered {dev.alias}")
 
 
-async def main(discover_plugs=lambda: Discover.discover_single("192.168.0.200"),
+async def main(discover_plugs=lambda: Discover.discover(),  # discover_single("192.168.0.200"),
                alarm=lambda s: print("ALARM", s),
                delay=True):
     # https://python-kasa.readthedocs.io/en/latest/smartplug.html
@@ -25,22 +25,19 @@ async def main(discover_plugs=lambda: Discover.discover_single("192.168.0.200"),
     log = logging.getLogger(__name__)
 
     try:
-        plug_found = await discover_plugs()
+        plugs_found = await discover_plugs()
     except SmartDeviceException as e:
         raise e
 
-    #
-    # if len(plugs_found == 0):
-    #     print("No plugs found")
-    #     exit(1)
-    #
-    # if len(plugs_found > 1):
-    #     print("More than one plug found")
-    #     exit(1)
-    #
-    # plug = plugs_found[0]
+    if len(plugs_found) == 0:
+        print("No plugs found")
+        exit(1)
 
-    plug = plug_found
+    if len(plugs_found) > 1:
+        print("More than one plug found")
+        exit(1)
+
+    plug = next(iter(plugs_found.values()))
 
     time_to_be_below_threshold = 60  # seconds
 
@@ -86,7 +83,8 @@ async def testableDummyPlug():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(format='%(levelname)s:%(message)s    File "%(pathname)s", line %(lineno)s', level=logging.DEBUG)
+    logging.basicConfig(format='%(levelname)s:%(message)s    File "%(pathname)s", line %(lineno)s', level=logging.WARN)
     # execute only if run as a script
     #    asyncio.run(main(discover_plugs=lambda: testableDummyPlug(), alarm=lambda s: print(s)))
-    asyncio.run(main(discover_plugs=lambda: testableDummyPlug(), delay=True))
+    #    asyncio.run(main(discover_plugs=lambda: testableDummyPlug(), delay=True))
+    asyncio.run(main(delay=True))
