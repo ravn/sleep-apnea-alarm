@@ -12,7 +12,7 @@ async def print_alias(dev):
     print(f"Discovered {dev.alias}")
 
 
-async def main(discover_plugs=lambda: Discover.discover_single("192.168.0.11"),
+async def main(discover_plugs=lambda: Discover.discover_single("192.168.0.200"),
                alarm=lambda s: print("ALARM", s),
                delay=True):
     # https://python-kasa.readthedocs.io/en/latest/smartplug.html
@@ -53,6 +53,7 @@ async def main(discover_plugs=lambda: Discover.discover_single("192.168.0.11"),
         now = datetime.now()
         time_in_range_now = True  # Elaborate check pending
         emeter_realtime = "<not set>"
+        current_power = 0
         if time_in_range_now:
             if not time_in_range_then:
                 power_currently_below_threshold = False
@@ -77,7 +78,7 @@ async def main(discover_plugs=lambda: Discover.discover_single("192.168.0.11"),
                 # For now we assume that network errors are transient.
                 pass
 
-        print(now, plug.alias, emeter_realtime)
+        print(now, plug.alias, current_power, emeter_realtime)
 
 
 async def testableDummyPlug():
